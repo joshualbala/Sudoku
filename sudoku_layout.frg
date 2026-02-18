@@ -1,82 +1,62 @@
 #lang forge/froglet
 
-// sig Cell {
-//     // row : one Int,
-//     // col : one Int,
-//     // subgrid : one Int,
-//     val : one Int
-// }
-
 sig Board {
     board: pfunc Int -> Int -> Int
 }
-// sig row {}
-// sig column {}
-// sig subGrid {}
-// sig values {}
 
-pred wellformed[b : Board] {
-    wellValues[b]
-    uniqueValues[b]
-    // wellRows[b]
-    // wellCols[b]
-    // wellSubgrid[b]
+// checks whether val is in range
+pred inRange[val: Int] {
+    val >= 1 and val <= 4
 }
 
+// check that all values are either empty or between 1 and 9
 pred wellValues[b : Board] {
     all row, col: Int | {
-        (row < 1 or row > 9 or col < 1 or col > 9) 
-            implies no b.board[row][col]      
-        (row >= 1 and row <= 9 and col >= 1 and col <= 9) 
-            implies {
-                one i: Int | i >= 1 and i <= 9 and b.board[row][col] = i
-            }
+        (not inRange[row] or not inRange[col]) implies { no b.board[row][col] } 
+        (inRange[row] and inRange[col]) implies {
+             one i: Int | inRange[i] and b.board[row][col] = i
+        }
     }
 }
 
-pred uniqueValues[b: Board] {
-    all row1, col1, row2, col2: Int | b.board[row1][col1] = b.board[row2][col2] implies {
-        (row1 = row2 and col1 = col2) or (row1 != row2 and col1 != col2)
+// for all valid rows, now 2 columns have the same value
+pred rowsUnique[b : Board] {
+    all row: Int | inRange[row] implies {
+        all disj col1, col2: Int | inRange[col1] and inRange[col2] implies {
+            b.board[row][col1] != b.board[row][col2]
+        }
     }
 }
 
-// pred wellRows[b : Board] {
-//     // constraint that all values in the same row are different
-//     all row : Int {
-//         (row >= 1 and row <= 9) 
-//             implies {
-//                all disj col1: Int, col2: Int {
-//                     (col1 >= 1 and col1 <= 9 and col2 >= 1 and col2 <= 9) 
-//                         implies {
-//                             b.board[row][col1].val != b.board[row][col2].val
-//                         }
-//                }
-//             }
-//     }
-// }
+// for all vlaid cols, no 2 rows have the same value
+pred colsUnique[b : Board] {
+    all col: Int | inRange[col] implies {
+        all disj row1, row2: Int | inRange[row1] and inRange[row2] implies {
+            b.board[row1][col] != b.board[row2][col]
+        }
+    }
+}
 
-// pred wellCols[b : Board] {
-//     // constraint that all values in the same col are different
-//    all col : Int {
-//         (col >= 1 and col <= 9) 
-//             implies {
-//                all disj row1: Int, row2: Int {
-//                     (row1 >= 1 and row1 <= 9 and row2 >= 1 and row2 <= 9) 
-//                         implies {
-//                             b.board[row1][col].val != b.board[row2][col].val
-//                         }
-//                }
-//             }
-//     }
-// }
+// checks whether cells are in the same grid
+pred sameGrid[row1: Int, col1: Int, row2: Int, col2: Int] {
+    (divide[subtract[row1, 1], 2] = divide[subtract[row2, 1], 2]) and (divide[subtract[col1, 1], 2] = divide[subtract[col2, 1], 2])
+}
 
-// pred wellSubgrid[b : Board] {
-//     // constraint that all values in the same subgrid are different
-//     all disj c1, c2: Cell | c1.subgrid = c2.subgrid implies {
-//         c1.val != c2.val
-//     }
-// }
+// for all pairs of cells in the same grid, they must have different values
+pred subgridUnique[b: Board] {
+    all disj row1, row2 :Int, col1, col2: Int | (inRange[row1] and inRange[row2] and inRange[col1] and inRange[col2] and sameGrid[row1, col1, row2, col2]) implies {
+        b.board[row1][col1] != b.board[row2][col2]
+    }
+}
 
-run { some b: Board | wellformed[b] }for exactly 1 Board, 5 Int
+// checks all predicates
+pred wellformed[b : Board] {
+    wellValues[b]
+    rowsUnique[b]
+    colsUnique[b]
+    subgridUnique[b]
+}
+
+run { some b: Board | wellformed[b] }for exactly 1 Board
 
 
