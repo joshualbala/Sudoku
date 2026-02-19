@@ -4,9 +4,12 @@ sig Board {
     board: pfunc Int -> Int -> Int
 }
 
-// checks whether val is in range
-pred inRange[val: Int] {
-    val >= 1 and val <= 4
+pred wellformed[b : Board] {
+    wellValues[b]
+    // uniqueValues[b]
+    // wellRows[b]
+    // wellCols[b]
+    // wellSubgrid[b]
 }
 
 // check that all values are either empty or between 1 and 9
