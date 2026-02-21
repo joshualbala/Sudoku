@@ -1,15 +1,15 @@
 #lang forge/froglet
 
+option run_sterling "sudoku.js"
+
 sig Board {
     board: pfunc Int -> Int -> Int
 }
 
-pred wellformed[b : Board] {
-    wellValues[b]
-    // uniqueValues[b]
-    // wellRows[b]
-    // wellCols[b]
-    // wellSubgrid[b]
+
+// checks whether val is in range
+pred inRange[val: Int] {
+    val >= 1 and val <= 4
 }
 
 // check that all values are either empty or between 1 and 9
@@ -60,6 +60,6 @@ pred wellformed[b : Board] {
     subgridUnique[b]
 }
 
-run { some b: Board | wellformed[b] }for exactly 1 Board
+run { some b: Board | wellformed[b] } for exactly 1 Board
 
 
