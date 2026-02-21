@@ -1,5 +1,7 @@
 #lang forge/froglet
 
+option run_sterling "sudoku.js"
+
 sig Board {
     board: pfunc Int -> Int -> Int
 }
