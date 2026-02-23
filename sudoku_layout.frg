@@ -1,18 +1,21 @@
 #lang forge/froglet
-
 option run_sterling "sudoku.js"
+
 
 sig Board {
     board: pfunc Int -> Int -> Int
 }
 
+sig Puzzle {
+    pboard: pfunc Int -> Int -> Int
+}
 
 // checks whether val is in range
 pred inRange[val: Int] {
     val >= 1 and val <= 4
 }
 
-// check that all values are either empty or between 1 and 9
+// check that all values are in range and exist at every valid combination
 pred wellValues[b : Board] {
     all row, col: Int | {
         (not inRange[row] or not inRange[col]) implies { no b.board[row][col] } 
@@ -59,7 +62,81 @@ pred wellformed[b : Board] {
     colsUnique[b]
     subgridUnique[b]
 }
+GenerateSudoku: run  { 
+    some b: Board | wellformed[b] 
+} for exactly 1 Board, 0 Puzzle
 
-run { some b: Board | wellformed[b] } for exactly 1 Board
 
+--------------------Solve a given Sudoku--------------------
+
+pred given[b: Board] {
+    b.board[1][1] = 4
+    b.board[1][2] = 2
+    b.board[2][3] = 4
+    b.board[2][4] = 2
+    b.board[3][1] = 1
+    b.board[4][1] = 2
+
+}
+
+SolvePreconfiguredSudoku: run { 
+    some b: Board | wellformed[b] and given[b] 
+} for exactly 1 Board, 0 Puzzle
+
+------------------Check if a given starting point has multiple solutions------------------
+
+pred twoDifferentSolutions {
+    some b1, b2: Board | wellformed[b1] and wellformed[b2] and given[b1] and given[b2] and b1 != b2
+}
+
+TwoDifferentSolutions: run  { 
+    twoDifferentSolutions 
+} for exactly 2 Board, 0 Puzzle
+
+-------------------Generate a starting puzzle-------------------
+
+// similar to wellvalues, but doesn't require every valid cell to have a value
+pred wellPuzzleValues[puzzle: Puzzle] {
+    all row, col: Int | {
+        (not inRange[row] or not inRange[col]) implies { no puzzle.pboard[row][col] } 
+        (inRange[row] and inRange[col] and some puzzle.pboard[row][col]) implies {
+             one i: Int | inRange[i] and puzzle.pboard[row][col] = i
+        }
+    }
+}  
+
+// ensures that a puzzle has n values filled in
+pred hasNClues[puzzle: Puzzle, n: Int] {
+    # { row, col: Int | inRange[row] and inRange[col] and some puzzle.pboard[row][col] } = n
+}
+
+// ensures that a valid solution respects the puzzle's filled values
+pred followsPuzzleClues[puzzle: Puzzle, solution: Board] {
+    all row, col : Int | (inRange[row] and inRange[col] and some puzzle.pboard[row][col])implies {
+        puzzle.pboard[row][col] = solution.board[row][col]
+    }
+}
+
+// checks whether two boards are the same
+pred boardsEqual[b1: Board, b2: Board] {
+    all row, col : Int | inRange[row] and inRange[col] implies {
+        b1.board[row][col] = b2.board[row][col]
+    }
+}
+
+pred hasSolution[puzzle: Puzzle] {
+    (some b: Board | wellformed[b] and followsPuzzleClues[puzzle, b])
+}
+
+
+// ensures that a puzzle is wellformed
+pred wellformedPuzzle[puzzle : Puzzle, numClues: Int] {
+    wellPuzzleValues[puzzle]
+    hasNClues[puzzle, numClues]
+    hasSolution[puzzle]
+}
+
+GeneratePuzzleAndSolution: run { 
+    some puzzle: Puzzle | wellformedPuzzle[puzzle, 7]
+} for exactly 1 Puzzle, exactly 1 Board
 
