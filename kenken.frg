@@ -1,6 +1,4 @@
 #lang forge
-option run_sterling "kenken.js"
-
 
 abstract sig Operation {}
 
@@ -76,7 +74,7 @@ pred wellformedGrid[b : Board] {
     colsUnique[b]
 }
 
-// generates a wellformed board (but other properties are messy)
+// generates a wellformed board (but other properties are messy, doen't really matter)
 WellformedBoard: run {
     some b: Board | wellformedGrid[b] 
 } for exactly 1 Board, exactly 16 Cell, exactly 5 Int 
@@ -103,7 +101,7 @@ pred cellsAdjacent[c1: Cell, c2: Cell] {
     (c1.col = c2.col) and (add[c1.row, 1] = c2.row or subtract[c1.row, 1] = c2.row)
 }
 
-// all cells are contiguous
+// all cells in a cage are contiguous
 pred cagesAreContiguous[cage: Cage] {
     let adjInCage = { c1, c2: cage.cells | cellsAdjacent[c1, c2] } | {
         all disj c1, c2: cage.cells | c2 in c1.^adjInCage
