@@ -117,13 +117,6 @@ pred followsPuzzleClues[puzzle: Puzzle, solution: Board] {
     }
 }
 
-// checks whether two boards are the same
-pred boardsEqual[b1: Board, b2: Board] {
-    all row, col : Int | inRange[row] and inRange[col] implies {
-        b1.board[row][col] = b2.board[row][col]
-    }
-}
-
 pred hasSolution[puzzle: Puzzle] {
     (some b: Board | wellformed[b] and followsPuzzleClues[puzzle, b])
 }
