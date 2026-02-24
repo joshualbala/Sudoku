@@ -84,7 +84,6 @@ WellformedBoard: run {
 
 ------------------------ENSURE CAGES ARE GOOD --------------------
 
-
 // ensure that all cages are in board
 pred cagesInBoard[b: Board] {
     all cage : Cage {
@@ -97,3 +96,82 @@ pred cagesPartition[b: Board] {
   all cell: Cell | some cage: b.cages | cell in cage.cells
   all cell: Cell | lone cage: b.cages | cell in cage.cells
 }
+
+// checks if cells are adjacent
+pred cellsAdjacent[c1: Cell, c2: Cell] {
+    (c1.row = c2.row) and (add[c1.col, 1] = c2.col or subtract[c1.col, 1] = c2.col) or
+    (c1.col = c2.col) and (add[c1.row, 1] = c2.row or subtract[c1.row, 1] = c2.row)
+}
+
+// all cells are contiguous
+pred cagesAreContiguous[cage: Cage] {
+    let adjInCage = { c1, c2: cage.cells | cellsAdjacent[c1, c2] } | {
+        all disj c1, c2: cage.cells | c2 in c1.^adjInCage
+    }
+}
+
+// the sum of all cell vals must be the target
+pred cagePlusOk[b: Board, cage: Cage] {
+  (sum c: cage.cells | b.val[c]) = cage.target
+}
+
+// no times predicate, so we just multiply two vals and check if its equal to target
+pred cageMultiplyOk[b: Board, cage: Cage] {
+  some disj c1, c2: cage.cells | multiply[b.val[c1], b.val[c2]] = cage.target
+}
+
+
+// check subtraction in both directions and compare to target
+pred cageMinusOk[b: Board, cage: Cage] {
+  some disj c1, c2: cage.cells |
+    subtract[b.val[c1], b.val[c2]] = cage.target or
+    subtract[b.val[c2], b.val[c1]] = cage.target
+}
+
+// do same as minus, but need to verify the multiplication product since forge does integer division
+pred cageDivideOk[b: Board, cage: Cage] {
+  some disj c1, c2: cage.cells | {
+    (divide[b.val[c1], b.val[c2]] = cage.target and multiply[cage.target, b.val[c2]] = b.val[c1]) or
+    (divide[b.val[c2], b.val[c1]] = cage.target and multiply[cage.target, b.val[c1]] = b.val[c2])
+  }
+}
+
+// for each cage, check the corresponding operation pred is correce. Limit to 2 cells for non-plus. 
+//  Target is positive between 1 and 16
+pred cagesCorrect[b: Board] {
+  all g: b.cages | {
+    g.operation = Plus implies cagePlusOk[b, g]
+    g.operation = Multiply implies {
+       cageMultiplyOk[b, g]
+       #{g.cells} = 2
+    }
+    g.operation = Minus implies {
+       cageMinusOk[b, g]
+       #{g.cells} = 2
+    }
+    g.operation = Divide implies {
+      cageDivideOk[b, g]
+      #{g.cells} = 2
+    }
+    g.target >= 1 and g.target <= 16  
+    cagesAreContiguous[g]
+  }
+}
+
+// at least one cage for each operation
+pred variedOperations[b: Board] {
+    all op: Operation | {
+        some cage: b.cages | cage.operation = op
+    }
+}
+
+// all together
+WellformedKenKen: run {
+  some b: Board | {
+    wellformedGrid[b]
+    cagesInBoard[b]
+    cagesPartition[b]
+    cagesCorrect[b]
+    variedOperations[b]
+  }
+} for exactly 1 Board, exactly 16 Cell, exactly 6 Cage, 6 Int
