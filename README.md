@@ -8,7 +8,8 @@ cannot be repeated in the same row, column or subgrid. We also hoped to generate
 but following this [Ed post and Tim's response](https://edstem.org/us/courses/91634/discussion/7707835), it seemed like this 
 was not possible. We instead decided to extend our Sudoku model by creating a KenKen model that uses similar properties. 
 For time constraints, we made the Sudoku board 4x4 as well since it worked quicker although that can be modified to a 9x9
-simply by changing the 4->9 in inRange and the 2->3 in sameGrid. We have two main files: sudoku_layout.frg and kenken.frg. 
+simply by changing the 4->9 in the `inRange` predicate and the 2->3 in the `sameGrid` predicate. We have two main files:
+sudoku_layout.frg and kenken.frg. 
 
 ## Model Visualization and Choices
 
