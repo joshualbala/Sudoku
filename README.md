@@ -13,6 +13,27 @@ sudoku_layout.frg and kenken.frg.
 
 ## Model Visualization and Choices
 
+### Model Design
+
+The Sudoku model is based on the conditions that govern what constitute a valid sudoku - no repeated vales in columns,
+rows, or subgrids. We shrunk the size down to a 4x4 grid from a 9x9 to speed up the runtime. Our first run command is `GenerateSudoku`, which generates a valid 4x4 sudoku. We decided to extend this to solve Sudokus given some starting 
+configuration, which is the in the `SolvePreconfiguredSudoku`run command. The `TwoDifferentSolutions` command simply
+generates 2 different solutions for an initial configuration. The major extension of our Sudoku model is a Puzzle, 
+where we ask Forge to generate a starting grid containing a certain number of clues (we've specified 7 in our
+`GeneratePuzzleAndSolution` predicate). Here, Forge generates a valid initial configuration containing the number of 
+specified clues and then generates a completed solution based on that pre-configuration it determined. 
+
+We adopted a similar approach for the KenKen model, starting with a grid that contains no repeated values in the same
+row or column (removing the subgrid constraint). The main change here was creating a Cell sig that modeled each cell
+within our grid. We use this Cell in our Cage sig, which includes a list of Cells, the target the values in its Cells
+are supposed to arrive at, and the operation to be used. Our first run command in the KenKen file is `WellformedBoard`,
+which simply creaates a valid board (following row and column constraints). This produces weird cages/cells, but we 
+haven't really put any restrictions on them yet. The second run command, `WellformedKenKen` produces a valid KenKen
+board. It uses predicates to ensure that we partition the entire board into Cages, and that each Cell is part of a cage. We use the transitive closure property to ensure that Cells in a Cage are contiguous and we perform individual
+checks for each operation to ensure that the values of the Cells in each Cage can be combined to arrive at the Cage's target. 
+
+### Model Visualization
+
 
 ## Signatures and Predicates
 
