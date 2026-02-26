@@ -126,6 +126,7 @@ verify and still match a solution to.
 
 ## Testing
 
+For testing we relied heavy on test expects because we felt those gave us the most freedom to specify certain board states that were either unsat or sat. We also tried to to use some asserts as well but felt limited by those since most of our predicates require paramters. With the text expects we tried to incorporate various predicates throughout because a wellformed sudoku, puzzle or kenken all requires multiple predicates together. Our approach was to think of some board that could exist that we felt aligned or didnt align with predicates logic. Additionally, we all tried to expect unsat where we could to ensure the reverse of our logic would work. Using these strategies for each predicate helped us create an extensive testing suite for all our predicates. Also, while testing forge was able to create some interesting counter examples that helped us reach our final design.  
 
 ## Project Files
 sudoku_layout.frg -> models a Sudoku grid
@@ -134,4 +135,4 @@ kenken.frg -> models a KenKen 4x4 grid
 
 sudoku_layout.test.frg -> tests for Sudoku
 
-___________ -> test for KenKen
+kenken.test.frg -> test for KenKen
