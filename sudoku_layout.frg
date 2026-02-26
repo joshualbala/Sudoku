@@ -1,5 +1,5 @@
 #lang forge/froglet
-option run_sterling "sudoku.js"
+option run_sterling "sudoku_visual.js"
 
 
 sig Board {

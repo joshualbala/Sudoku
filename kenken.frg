@@ -1,4 +1,5 @@
 #lang forge
+// option run_sterling "kenken_visual.js"
 
 abstract sig Operation {}
 
