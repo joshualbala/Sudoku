@@ -61,8 +61,8 @@ pred wellformedCells {
   all c: Cell | inRange[c.row] and inRange[c.col]
   all disj c1, c2: Cell |
     c1.row != c2.row or c1.col != c2.col
-  all row, col: Int | (inRange[row] and inRange[col]) implies {
-    one c: Cell | c.row = row and c.col = col
+  all rowTemp, colTemp: Int | (inRange[rowTemp] and inRange[colTemp]) implies {
+    one c: Cell | c.row = rowTemp and c.col = colTemp
   }
 }
 
