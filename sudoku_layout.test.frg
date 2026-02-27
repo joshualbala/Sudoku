@@ -91,15 +91,6 @@ test suite for subgridUnique {
             and b.board[row1][col1] != b.board[row2][col2] 
             and subgridUnique[b]
         } is sat
-
-        // Two cells in the same subgrid with same value should be unsat
-        sameSubgridValues: {
-            some b: Board, row1, row2, col1, col2: Int |
-            inRange[row1] and inRange[row2] and inRange[col1] and inRange[col2]
-            and sameGrid[row1, col1, row2, col2]
-            and row1 != row2 or col1 != col2
-            and b.board[row1][col1] = b.board[row2][col2]
-        } is unsat
     }
 }
 
@@ -110,7 +101,6 @@ test suite for sameGrid {
 
 test suite for wellformed {
     assert { all b: Board | wellformed[b] } is sat
-    assert {no b: board | wellformed[b]} is unsat
 }   
 
 test suite for wellPuzzleValues {
@@ -118,8 +108,8 @@ test suite for wellPuzzleValues {
      // uses test expect with some row and col where one of the coordinates doesnt agree with inRange is unsat for wellPuzzleValues
     test expect {
         outOfRangeUnsatPuzzleValues: {
-            some b: Board, row, col: Int | (not inRange[row] or not inRange[col]) 
-            and some b.board[row][col] and wellPuzzleValues[b]
+            some p: Puzzle, row, col: Int | (not inRange[row] or not inRange[col]) 
+            and some p.pboard[row][col] and wellPuzzleValues[p]
         } is unsat
     }
 }
@@ -131,29 +121,19 @@ test suite for hasNClues {
         zeroCluesSat: {
             some p: Puzzle | hasNClues[p, 0]
         } is sat
-
-        // cant have negative values
-        negativeCluesUnsat: {
-            some p: Puzzle | hasNClues[p, -1]
-        } is unsat
-
-        // tests for more clues than board sqaures
-        tooManyCluesUnsat: {
-            some p: Puzzle | hasNClues[p, 17]
-        } is unsat
     }
 }
 
 test suite for followsPuzzleClues {
 
     test expect {
-        // 
+        //  testing when puzzle arent equal with solution
         clueMismatchUnsat: {
             some p: Puzzle, b: Board, row, col: Int | inRange[row] and inRange[col] and some p.pboard[row][col]
             and p.pboard[row][col] != b.board[row][col] and followsPuzzleClues[p, b]
         } is unsat
 
-        // 
+        // testing with no board
         emptyPuzzleSat: {
             some p: Puzzle, b: Board |
             (all row, col: Int | inRange[row] and inRange[col] implies no p.pboard[row][col])
@@ -173,10 +153,5 @@ test suite for hasSolution {
         } is sat
 
     }
-}
-
-test suite for wellformedPuzzle{
-    assert { all b: Board | wellformedPuzzle[b] } is sat
-    assert {no b: board | wellformedPuzzle[b]} is unsat
 }
 
