@@ -34,6 +34,7 @@ checks for each operation to ensure that the values of the Cells in each Cage ca
 
 ### Model Visualization
 
+We created a custom visualization using sterlin for both Sudoku and KenKen under SVG. Both visualizations use the grid objects and KenKen board is more complicated with colors and a legend at the bottom represented as rectangle objects. Both these visualization are for 4 x 4 boards and help verify different instances of the model. 
 
 ## Signatures and Predicates
 
